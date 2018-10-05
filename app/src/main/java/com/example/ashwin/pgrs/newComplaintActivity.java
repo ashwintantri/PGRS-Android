@@ -29,6 +29,13 @@ import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -49,12 +56,13 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
-public class newComplaintActivity extends AppCompatActivity {
+public class newComplaintActivity extends AppCompatActivity implements OnMapReadyCallback{
 
     EditText details,date;
     Spinner spinner,type_Spinner;
     DatabaseReference db;
     String photoPath;
+    GoogleMap googleMap;
     FirebaseUser currentUser;
     static final int REQUEST_TAKE_PHOTO = 1;
     DatabaseReference myRef;
@@ -67,6 +75,8 @@ public class newComplaintActivity extends AppCompatActivity {
     FusedLocationProviderClient fusedLocationProviderClient;
     String department;
     private FirebaseAuth mAuth;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +85,8 @@ public class newComplaintActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Register complaint");
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(newComplaintActivity.this);
         myCalender = Calendar.getInstance();
+        SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_id);
+        supportMapFragment.getMapAsync(newComplaintActivity.this);
         spinner = findViewById(R.id.spinner_item);
         type_Spinner = findViewById(R.id.spinner_item_type);
         getLoc = findViewById(R.id.get_loc_id);
@@ -273,6 +285,8 @@ public class newComplaintActivity extends AppCompatActivity {
                                         {
                                             lat = location.getLatitude();
                                             longitude = location.getLongitude();
+                                            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,longitude),14.0f));
+                                            googleMap.addMarker(new MarkerOptions().position(new LatLng(lat,longitude)).title("My location"));
                                             Toast.makeText(newComplaintActivity.this,"Location detected",Toast.LENGTH_SHORT).show();
                                         }
                                     }
@@ -285,6 +299,10 @@ public class newComplaintActivity extends AppCompatActivity {
                 }
             }
         }
+    }
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        this.googleMap = googleMap;
     }
 
     @Override

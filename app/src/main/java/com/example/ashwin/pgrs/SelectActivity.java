@@ -6,7 +6,9 @@ import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.location.Location;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -23,6 +25,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -39,6 +42,8 @@ public class SelectActivity extends AppCompatActivity
     DatabaseReference db;
     ComplaintsAdapter complaintsAdapter;
     FirebaseUser currentUser;
+    SwipeRefreshLayout mSwipe;
+    Query query;
     ProgressBar progressBar;
     private FirebaseAuth mAuth;
     double lat,longitude;
@@ -53,8 +58,10 @@ public class SelectActivity extends AppCompatActivity
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(SelectActivity.this);
         progressBar = findViewById(R.id.progress_id);
         currentUser = mAuth.getCurrentUser();
+        mSwipe = findViewById(R.id.swipe_refresh);
+
         cr = new ArrayList<>();
-        db = FirebaseDatabase.getInstance().getReference();
+        //db = FirebaseDatabase.getInstance().getReference();
         rv = findViewById(R.id.complaint_recyclerview_id);
         rv.setLayoutManager(new LinearLayoutManager(SelectActivity.this));
         complaintsAdapter = new ComplaintsAdapter(SelectActivity.this,cr);
@@ -62,22 +69,32 @@ public class SelectActivity extends AppCompatActivity
         rv.setAdapter(complaintsAdapter);
         ActivityCompat.requestPermissions(SelectActivity.this,new String[]
                 {Manifest.permission.ACCESS_FINE_LOCATION},1);
-        Query query = FirebaseDatabase.getInstance().getReference();
-        query.addValueEventListener(vEl);
-        //complaintsAdapter.notifyDataSetChanged();
+        query = FirebaseDatabase.getInstance().getReference();
+        query.addListenerForSingleValueEvent(vEl);
+        //startActivity(getIntent());
+        mSwipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                mSwipe.setRefreshing(false);
+                query.addListenerForSingleValueEvent(vEl);
+                complaintsAdapter.notifyDataSetChanged();
+            }
+        });
+        complaintsAdapter.notifyDataSetChanged();
     }
-
     private double getDistance(double LAT1, double LONG1, double LAT2, double LONG2)
     {
         return 2 * 6371000 * Math.asin(Math.sqrt(Math.pow((Math.sin((LAT2 * (3.14159 / 180) - LAT1 * (3.14159 / 180)) / 2)), 2) + Math.cos(LAT2 * (3.14159 / 180)) * Math.cos(LAT1 * (3.14159 / 180)) * Math.sin(Math.pow(((LONG2 * (3.14159 / 180) - LONG1 * (3.14159 / 180)) / 2), 2))));
     }
-
     ValueEventListener vEl = new ValueEventListener()
     {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot)
         {
+            //Toast.makeText(SelectActivity.this,"Changed",Toast.LENGTH_SHORT).show();
+
             progressBar.setVisibility(View.GONE);
+            cr.clear();
             for(DataSnapshot complaintSnapshot : dataSnapshot.getChildren())
             {
                 Complaints c = complaintSnapshot.getValue(Complaints.class);
@@ -85,6 +102,8 @@ public class SelectActivity extends AppCompatActivity
                     cr.add(c);
             }
             complaintsAdapter.swapItems(cr);
+            complaintsAdapter.notifyDataSetChanged();
+            query.addListenerForSingleValueEvent(vEl);
         }
 
         @Override
@@ -94,6 +113,13 @@ public class SelectActivity extends AppCompatActivity
         }
 
     };
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+    }
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -168,5 +194,6 @@ public class SelectActivity extends AppCompatActivity
     {
         Intent startNewComplaint = new Intent(this, newComplaintActivity.class);
         startActivity(startNewComplaint);
+        finish();
     }
 }
