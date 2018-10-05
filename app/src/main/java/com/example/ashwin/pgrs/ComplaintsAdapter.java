@@ -1,6 +1,7 @@
 package com.example.ashwin.pgrs;
 
 import android.content.Context;
+import android.provider.ContactsContract;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -8,13 +9,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 
 public class ComplaintsAdapter extends RecyclerView.Adapter<ComplaintsViewHolder>
 {
     Context c;
     ArrayList<Complaints> ar;
-
+    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
     public ComplaintsAdapter(Context c,ArrayList<Complaints> ar)
     {
         this.c = c;
@@ -44,7 +51,7 @@ public class ComplaintsAdapter extends RecyclerView.Adapter<ComplaintsViewHolder
             @Override
             public void onClick(View view) {
                 holder.upvoteButton.setEnabled(false);
-                Toast.makeText(c,"Upvoted!",Toast.LENGTH_SHORT).show();
+                Toast.makeText(c,"Upvoted",Toast.LENGTH_SHORT).show();
             }
         });
     }

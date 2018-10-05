@@ -34,6 +34,8 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 public class SelectActivity extends AppCompatActivity
 {
@@ -65,7 +67,6 @@ public class SelectActivity extends AppCompatActivity
         rv = findViewById(R.id.complaint_recyclerview_id);
         rv.setLayoutManager(new LinearLayoutManager(SelectActivity.this));
         complaintsAdapter = new ComplaintsAdapter(SelectActivity.this,cr);
-        rv.setHasFixedSize(true);
         rv.setAdapter(complaintsAdapter);
         ActivityCompat.requestPermissions(SelectActivity.this,new String[]
                 {Manifest.permission.ACCESS_FINE_LOCATION},1);
@@ -103,6 +104,7 @@ public class SelectActivity extends AppCompatActivity
             }
             complaintsAdapter.swapItems(cr);
             complaintsAdapter.notifyDataSetChanged();
+            Collections.reverse(cr);
             query.addListenerForSingleValueEvent(vEl);
         }
 

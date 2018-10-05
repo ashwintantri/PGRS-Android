@@ -18,7 +18,7 @@
             android:padding="3dp"
             android:text="Department"
             android:textColor="#000"
-            android:textSize="20sp" />
+            android:textSize="20sp"/>
         <TextView
             android:id="@+id/date_id_result"
             android:layout_below="@id/dept_id_result"

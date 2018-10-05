@@ -49,11 +49,6 @@ public class TechnicianDashboardActivity extends AppCompatActivity {
         Query query = FirebaseDatabase.getInstance().getReference("Technicians").orderByChild("email").equalTo(mAuth.getCurrentUser().getEmail());
         query.addValueEventListener(valueEventListener);
     }
-
-    private double getDistance(double LAT1, double LONG1, double LAT2, double LONG2)
-    {
-        return 2 * 6371000 * Math.asin(Math.sqrt(Math.pow((Math.sin((LAT2 * (3.14159 / 180) - LAT1 * (3.14159 / 180)) / 2)), 2) + Math.cos(LAT2 * (3.14159 / 180)) * Math.cos(LAT1 * (3.14159 / 180)) * Math.sin(Math.pow(((LONG2 * (3.14159 / 180) - LONG1 * (3.14159 / 180)) / 2), 2))));
-    }
     ValueEventListener valueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
