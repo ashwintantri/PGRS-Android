@@ -5,6 +5,7 @@ import java.util.Date;
 public class Complaints
 {
     String dept;
+    String photoUrl;
     String authority;
     String date;
     String details;
@@ -13,22 +14,10 @@ public class Complaints
     int upvoted;
     String emailID;
     double lat,longitude;
-
-    public Complaints(String dept,String authority,String date,String details,String status,String type,int upvoted,String emailID,double lat,double longitude)
+    public Complaints(String photoUrl,String dept,String authority,String date,String details,String status,String type,int upvoted,String emailID,double lat,double longitude)
     {
+        this.photoUrl = photoUrl;
         this.dept = dept;
-        this.authority = authority;
-        this.date = date;
-        this.details = details;
-        this.status = status;
-        this.type = type;
-        this.upvoted = upvoted;
-        this.emailID = emailID;
-        this.lat = lat;
-        this.longitude = longitude;
-    }
-    public Complaints(String authority,String date,String details,String status,String type,int upvoted,String emailID,double lat,double longitude)
-    {
         this.authority = authority;
         this.date = date;
         this.details = details;
@@ -102,6 +91,14 @@ public class Complaints
 
     public void setAuthority(String authority) {
         this.authority = authority;
+    }
+
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    public void setPhotoUrl(String photoUrl) {
+        this.photoUrl = photoUrl;
     }
 
     public void setDate(String date) {

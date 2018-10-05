@@ -1,8 +1,12 @@
 package com.example.ashwin.pgrs;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.location.Location;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -39,37 +43,35 @@ public class SelectActivity extends AppCompatActivity
     private FirebaseAuth mAuth;
     double lat,longitude;
     FusedLocationProviderClient fusedLocationProviderClient;
-    ArrayList<Complaints> cr = new ArrayList<Complaints>();
+    ArrayList<Complaints> cr;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_select);
+        setContentView(R.layout.select_activity);
         getSupportActionBar().setTitle("Submitted Complaints");
         mAuth = FirebaseAuth.getInstance();
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(SelectActivity.this);
         progressBar = findViewById(R.id.progress_id);
         currentUser = mAuth.getCurrentUser();
+        cr = new ArrayList<>();
         db = FirebaseDatabase.getInstance().getReference();
         rv = findViewById(R.id.complaint_recyclerview_id);
-        rv.setLayoutManager(new LinearLayoutManager(this));
-        complaintsAdapter = new ComplaintsAdapter(this,cr);
+        rv.setLayoutManager(new LinearLayoutManager(SelectActivity.this));
+        complaintsAdapter = new ComplaintsAdapter(SelectActivity.this,cr);
+        rv.setHasFixedSize(true);
         rv.setAdapter(complaintsAdapter);
-        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(new OnSuccessListener<Location>() {
-            @Override
-            public void onSuccess(Location location) {
-                lat = location.getLatitude();
-                longitude = location.getLongitude();
-            }
-        });
+        ActivityCompat.requestPermissions(SelectActivity.this,new String[]
+                {Manifest.permission.ACCESS_FINE_LOCATION},1);
         Query query = FirebaseDatabase.getInstance().getReference();
-        query.addListenerForSingleValueEvent(vEl);
-        complaintsAdapter.notifyDataSetChanged();
+        query.addValueEventListener(vEl);
+        //complaintsAdapter.notifyDataSetChanged();
     }
 
     private double getDistance(double LAT1, double LONG1, double LAT2, double LONG2)
     {
         return 2 * 6371000 * Math.asin(Math.sqrt(Math.pow((Math.sin((LAT2 * (3.14159 / 180) - LAT1 * (3.14159 / 180)) / 2)), 2) + Math.cos(LAT2 * (3.14159 / 180)) * Math.cos(LAT1 * (3.14159 / 180)) * Math.sin(Math.pow(((LONG2 * (3.14159 / 180) - LONG1 * (3.14159 / 180)) / 2), 2))));
     }
+
     ValueEventListener vEl = new ValueEventListener()
     {
         @Override
@@ -82,7 +84,7 @@ public class SelectActivity extends AppCompatActivity
                 if(getDistance(c.getLat(),c.getLongitude(),lat,longitude)<300)
                     cr.add(c);
             }
-            complaintsAdapter.notifyDataSetChanged();
+            complaintsAdapter.swapItems(cr);
         }
 
         @Override
@@ -90,12 +92,47 @@ public class SelectActivity extends AppCompatActivity
         {
 
         }
+
     };
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch(requestCode)
+        {
+            case 1:
+            {
+                if(grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                {
+                    try
+                    {
+                        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(SelectActivity.this,
+                                new OnSuccessListener<Location>() {
+                                    @Override
+                                    public void onSuccess(Location location) {
+                                        if(location!=null)
+                                        {
+                                            lat = location.getLatitude();
+                                            longitude = location.getLongitude();
+                                            Toast.makeText(SelectActivity.this,"Location detected",Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                });
+                    }
+                    catch (SecurityException e)
+                    {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+    }
     @Override
     public void onBackPressed()
     {
         Toast.makeText(this, "Click on Sign Out", Toast.LENGTH_SHORT).show();
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item)
@@ -132,5 +169,4 @@ public class SelectActivity extends AppCompatActivity
         Intent startNewComplaint = new Intent(this, newComplaintActivity.class);
         startActivity(startNewComplaint);
     }
-
 }

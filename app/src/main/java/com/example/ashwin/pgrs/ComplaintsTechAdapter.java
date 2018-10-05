@@ -20,7 +20,10 @@ public class ComplaintsTechAdapter extends RecyclerView.Adapter<ComplaintsTechVi
         this.c = c;
         this.ar = ar;
     }
-
+    public void swapItems(ArrayList<Complaints> repoListItems) {
+        this.ar = repoListItems;
+        notifyDataSetChanged();
+    }
     @NonNull
     @Override
     public ComplaintsTechViewHolder onCreateViewHolder(@NonNull ViewGroup parent,int viewType)
@@ -31,7 +34,6 @@ public class ComplaintsTechAdapter extends RecyclerView.Adapter<ComplaintsTechVi
 
     @Override
     public void onBindViewHolder(@NonNull final ComplaintsTechViewHolder holder, int position) {
-        holder.status.setText(ar.get(position).getStatus());
         holder.details.setText(ar.get(position).getDetails());
         holder.date.setText(ar.get(position).getDate());
         holder.department.setText(ar.get(position).getDept());

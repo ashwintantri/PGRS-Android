@@ -20,7 +20,10 @@ public class ComplaintsAdapter extends RecyclerView.Adapter<ComplaintsViewHolder
         this.c = c;
         this.ar = ar;
     }
-
+    public void swapItems(ArrayList<Complaints> repoListItems) {
+        this.ar = repoListItems;
+        notifyDataSetChanged();
+    }
     @NonNull
     @Override
     public ComplaintsViewHolder onCreateViewHolder(@NonNull ViewGroup parent,int viewType)

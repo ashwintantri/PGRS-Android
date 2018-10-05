@@ -9,7 +9,7 @@ import org.w3c.dom.Text;
 
 public class ComplaintsTechViewHolder extends RecyclerView.ViewHolder
 {
-    TextView status, details, date,type,department;
+    TextView details, date,type,department;
     Button markAsDone;
 
     public ComplaintsTechViewHolder(View itemView)
@@ -19,7 +19,6 @@ public class ComplaintsTechViewHolder extends RecyclerView.ViewHolder
         date = itemView.findViewById(R.id.date_id_result);
         details = itemView.findViewById(R.id.details_id_result);
         type = itemView.findViewById(R.id.type_id_result);
-        status = itemView.findViewById(R.id.status_id_result);
         markAsDone = itemView.findViewById(R.id.mark_button_id);
     }
 }

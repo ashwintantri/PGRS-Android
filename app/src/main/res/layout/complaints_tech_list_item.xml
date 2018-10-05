@@ -48,16 +48,6 @@
             android:text="Type"
             android:textColor="#000"
             android:textSize="20sp" />
-        <TextView
-            android:id="@+id/status_id_result"
-            android:layout_below="@id/type_id_result"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="3dp"
-            android:padding="3dp"
-            android:text="Status"
-            android:textColor="#000"
-            android:textSize="20sp" />
         <Button
             android:layout_width="wrap_content"
             android:layout_height="48dp"

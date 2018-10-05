@@ -32,6 +32,7 @@ public class TechnicianDashboardActivity extends AppCompatActivity {
     Technician technician;
     ComplaintsTechAdapter complaintsAdapter;
     RecyclerView recyclerView;
+    String dept;
     ArrayList<Complaints> complaints;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,30 +45,27 @@ public class TechnicianDashboardActivity extends AppCompatActivity {
         complaintsAdapter = new ComplaintsTechAdapter(TechnicianDashboardActivity.this,complaints);
         recyclerView.setAdapter(complaintsAdapter);
         progressBar = findViewById(R.id.technician_progress);
-        getSupportActionBar().setTitle("Dashboard");
+        getSupportActionBar().setTitle("Assigned Tasks");
         Query query = FirebaseDatabase.getInstance().getReference("Technicians").orderByChild("email").equalTo(mAuth.getCurrentUser().getEmail());
         query.addValueEventListener(valueEventListener);
-        Query queryComplaint = FirebaseDatabase.getInstance().getReference();
-        queryComplaint.addValueEventListener(valueEventListenerComplaint);
-
     }
+
     private double getDistance(double LAT1, double LONG1, double LAT2, double LONG2)
     {
         return 2 * 6371000 * Math.asin(Math.sqrt(Math.pow((Math.sin((LAT2 * (3.14159 / 180) - LAT1 * (3.14159 / 180)) / 2)), 2) + Math.cos(LAT2 * (3.14159 / 180)) * Math.cos(LAT1 * (3.14159 / 180)) * Math.sin(Math.pow(((LONG2 * (3.14159 / 180) - LONG1 * (3.14159 / 180)) / 2), 2))));
     }
-    ValueEventListener valueEventListenerComplaint = new ValueEventListener() {
+    ValueEventListener valueEventListener = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             progressBar.setVisibility(GONE);
+            complaints.clear();
             for(DataSnapshot ds:dataSnapshot.getChildren())
             {
-                Complaints c = ds.getValue(Complaints.class);
-                if(getDistance(technician.getLat(),technician.getLongitude(),c.getLat(),c.getLongitude())<300)
-                {
-                    complaints.add(c);
-                }
+                technician = ds.getValue(Technician.class);
+                dept = technician.getDepartment();
             }
-            complaintsAdapter.notifyDataSetChanged();
+            Query queryComplaint = FirebaseDatabase.getInstance().getReference().orderByChild("dept").equalTo(dept);
+            queryComplaint.addValueEventListener(valueEventListenerComplaint);
         }
 
         @Override
@@ -75,16 +73,21 @@ public class TechnicianDashboardActivity extends AppCompatActivity {
 
         }
     };
-    ValueEventListener valueEventListener = new ValueEventListener() {
+    ValueEventListener valueEventListenerComplaint = new ValueEventListener() {
         @Override
         public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
             progressBar.setVisibility(GONE);
+            complaints.clear();
             for(DataSnapshot ds:dataSnapshot.getChildren())
             {
-                technician = ds.getValue(Technician.class);
+                Complaints c = ds.getValue(Complaints.class);
+                if(c.getAuthority().equals(technician.getName()))
+                {
+                    complaints.add(c);
+                }
             }
+            complaintsAdapter.swapItems(complaints);
         }
-
         @Override
         public void onCancelled(@NonNull DatabaseError databaseError) {
 
@@ -106,5 +109,10 @@ public class TechnicianDashboardActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_item,menu);
         menu.findItem(R.id.add_complaint).setVisible(false);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Toast.makeText(TechnicianDashboardActivity.this,"Click on sign out",Toast.LENGTH_SHORT).show();
     }
 }
