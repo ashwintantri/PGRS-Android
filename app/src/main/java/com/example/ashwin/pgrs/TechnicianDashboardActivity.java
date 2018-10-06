@@ -22,6 +22,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import static android.view.View.GONE;
 
@@ -82,6 +83,7 @@ public class TechnicianDashboardActivity extends AppCompatActivity {
                 }
             }
             complaintsAdapter.swapItems(complaints);
+            Collections.reverse(complaints);
         }
         @Override
         public void onCancelled(@NonNull DatabaseError databaseError) {

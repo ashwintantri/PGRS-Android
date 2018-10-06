@@ -63,6 +63,7 @@ public class newComplaintActivity extends AppCompatActivity implements OnMapRead
     DatabaseReference db;
     String photoPath;
     GoogleMap googleMap;
+    EditText editText;
     FirebaseUser currentUser;
     static final int REQUEST_TAKE_PHOTO = 1;
     DatabaseReference myRef;
@@ -92,6 +93,7 @@ public class newComplaintActivity extends AppCompatActivity implements OnMapRead
         getLoc = findViewById(R.id.get_loc_id);
         details = findViewById(R.id.dialog_details_id);
         date = findViewById(R.id.dialog_date_id);
+        editText = findViewById(R.id.desc_id);
         capturePhoto = findViewById(R.id.capture_photo);
         myRef = FirebaseDatabase.getInstance().getReference();
         capturePhoto.setOnClickListener(new View.OnClickListener() {
@@ -171,6 +173,7 @@ public class newComplaintActivity extends AppCompatActivity implements OnMapRead
                 final String details_entered = details.getText().toString();
                 final String status = "Submitted";
                 final String type_selected = type;
+                final String desc = editText.getText().toString();
                 final String key = myRef.push().getKey();
                 storageReference = FirebaseStorage.getInstance().getReference(key);
                 UploadTask uploadTask = storageReference.putFile(Uri.fromFile(new File(mCurrentPhotoPath)));
@@ -190,7 +193,7 @@ public class newComplaintActivity extends AppCompatActivity implements OnMapRead
                         photoPath = downloadUri.toString();
                         //Toast.makeText(newComplaintActivity.this,photoPath,Toast.LENGTH_SHORT).show();
                         int upvoted = 1;
-                        Complaints cs = new Complaints(photoPath,department,authority,date_entered,details_entered,status,type_selected,upvoted,mAuth.getCurrentUser().getEmail(),lat,longitude);
+                        Complaints cs = new Complaints(photoPath,department,desc,authority,date_entered,details_entered,status,type_selected,upvoted,mAuth.getCurrentUser().getEmail(),lat,longitude);
                         db.child(key).setValue(cs);
                         AlertDialog.Builder builder = new AlertDialog.Builder(newComplaintActivity.this);
                         builder.setMessage("Complaint successfully registered.\n\nWe hope it will be resolved soon!").setTitle("Confirmation");
@@ -207,6 +210,13 @@ public class newComplaintActivity extends AppCompatActivity implements OnMapRead
 
             }
         });
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        startActivity(new Intent(newComplaintActivity.this,SelectActivity.class));
+        finish();
     }
 
     private void dispatchTakePictureIntent() {
@@ -251,7 +261,7 @@ public class newComplaintActivity extends AppCompatActivity implements OnMapRead
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId())
         {
-            case android.R.id.home:NavUtils.navigateUpFromSameTask(newComplaintActivity.this);return true;
+            case android.R.id.home:startActivity(new Intent(newComplaintActivity.this,SelectActivity.class));finish();return true;
             case R.id.signout_button:FirebaseAuth.getInstance().signOut();startLoginActivity();return true;
 
 

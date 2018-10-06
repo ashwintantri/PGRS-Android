@@ -31,7 +31,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="14dp"
-                android:hint="Date"
+                android:hint="Double tap to select date"
+                android:padding="16dp"
+                android:shadowColor="#979ca3" />
+            <EditText
+                android:id="@+id/desc_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="14dp"
+                android:hint="Description"
                 android:padding="16dp"
                 android:shadowColor="#979ca3" />
             <Spinner

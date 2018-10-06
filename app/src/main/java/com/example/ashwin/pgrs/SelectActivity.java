@@ -21,6 +21,7 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -60,6 +61,7 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
     SwipeRefreshLayout mSwipe;
     Query query;
     ViewPager viewPager;
+    Marker marker;
     GoogleMap googleMap;
     ProgressBar progressBar;
     private FirebaseAuth mAuth;
@@ -117,10 +119,12 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
                     cr.add(c);
                     //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,longitude),14.0f));
                     googleMap.addMarker(new MarkerOptions().position(new LatLng(c.getLat(),c.getLongitude())).title("Department: "+c.getDept()+"\n"+"Details: "+c.getDetails()+"\n"+"Status: "+c.getStatus()+"\n"+"Authority: "+c.getAuthority()));
+
                 }
             }
             //Collections.reverse(cr);
             query.addListenerForSingleValueEvent(vEl);
+            Collections.reverse(cr);
         }
 
         @Override
@@ -228,7 +232,7 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
             }
 
             @Override
-            public View getInfoContents(Marker marker) {
+            public View getInfoContents(final Marker marker) {
                 Context context = getApplicationContext();
                 LinearLayout info = new LinearLayout(context);
                 info.setOrientation(LinearLayout.VERTICAL);
@@ -237,10 +241,25 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
                 title.setGravity(Gravity.CENTER);
                 title.setTypeface(null, Typeface.BOLD);
                 title.setText(marker.getTitle());
-
-
+                Button button = new Button(context);
+                button.setText("Volunteer");
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(SelectActivity.this,"We'll get back to you shortly!",Toast.LENGTH_SHORT).show();
+                    }
+                });
+                Button button1 = new Button(context);
+                button1.setText("Upvote");
+                button1.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Toast.makeText(SelectActivity.this,"Upvoted",Toast.LENGTH_SHORT).show();
+                    }
+                });
                 info.addView(title);
-
+                info.addView(button);
+                info.addView(button1);
                 return info;
             }
         });

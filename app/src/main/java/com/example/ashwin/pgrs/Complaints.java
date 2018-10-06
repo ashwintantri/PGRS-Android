@@ -8,18 +8,20 @@ public class Complaints
     String photoUrl;
     String authority;
     String date;
+    String description;
     String details;
     String status;
     String type;
     int upvoted;
     String emailID;
     double lat,longitude;
-    public Complaints(String photoUrl,String dept,String authority,String date,String details,String status,String type,int upvoted,String emailID,double lat,double longitude)
+    public Complaints(String photoUrl,String dept,String desc,String authority,String date,String details,String status,String type,int upvoted,String emailID,double lat,double longitude)
     {
         this.photoUrl = photoUrl;
         this.dept = dept;
         this.authority = authority;
         this.date = date;
+        this.description = desc;
         this.details = details;
         this.status = status;
         this.type = type;
