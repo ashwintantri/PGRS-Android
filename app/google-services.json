@@ -46,36 +46,13 @@
       },
       "oauth_client": [
         {
-          "client_id": "634022199959-ejc9e0i3lvr0hbl8sk6303gije97pgoh.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyD9sQdPm1GhKUIxm0Kpm-H3JhpbUEQ4mns"
-        }
-      ],
-      "services": {
-        "analytics_service": {
-          "status": 1
+          "client_id": "634022199959-5b41v2di5l12sr3mmvo1c1q47fo9i44g.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.ashwin.pgrs",
+            "certificate_hash": "f86b57d9dc2b5c787e2039f286b8d67526ffe0cf"
+          }
         },
-        "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
-        },
-        "ads_service": {
-          "status": 2
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:634022199959:android:ae1be40b2dbf5ae7",
-        "android_client_info": {
-          "package_name": "com.example.ashwin_10_3.myapplication"
-        }
-      },
-      "oauth_client": [
         {
           "client_id": "634022199959-ejc9e0i3lvr0hbl8sk6303gije97pgoh.apps.googleusercontent.com",
           "client_type": 3
@@ -91,8 +68,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "634022199959-ejc9e0i3lvr0hbl8sk6303gije97pgoh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2

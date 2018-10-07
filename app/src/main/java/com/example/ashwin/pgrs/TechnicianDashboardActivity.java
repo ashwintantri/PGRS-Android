@@ -34,6 +34,7 @@ public class TechnicianDashboardActivity extends AppCompatActivity {
     ComplaintsTechAdapter complaintsAdapter;
     RecyclerView recyclerView;
     String dept;
+    Query queryComplaint;
     ArrayList<Complaints> complaints;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,7 +61,7 @@ public class TechnicianDashboardActivity extends AppCompatActivity {
                 technician = ds.getValue(Technician.class);
                 dept = technician.getDepartment();
             }
-            Query queryComplaint = FirebaseDatabase.getInstance().getReference().orderByChild("dept").equalTo(dept);
+            queryComplaint = FirebaseDatabase.getInstance().getReference().orderByChild("dept").equalTo(dept);
             queryComplaint.addValueEventListener(valueEventListenerComplaint);
         }
 
@@ -77,9 +78,13 @@ public class TechnicianDashboardActivity extends AppCompatActivity {
             for(DataSnapshot ds:dataSnapshot.getChildren())
             {
                 Complaints c = ds.getValue(Complaints.class);
-                if(c.getAuthority().equals(technician.getName()))
+                if((c.getAuthority().equals(technician.getName()))&&complaints.size()<5)
                 {
                     complaints.add(c);
+                }
+                else if(complaints.size()>5)
+                {
+                    queryComplaint.removeEventListener(this);
                 }
             }
             complaintsAdapter.swapItems(complaints);

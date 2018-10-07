@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -105,6 +106,7 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
     }
     ValueEventListener vEl = new ValueEventListener()
     {
+
         @Override
         public void onDataChange(DataSnapshot dataSnapshot)
         {
@@ -115,11 +117,15 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
             for(DataSnapshot complaintSnapshot : dataSnapshot.getChildren())
             {
                 Complaints c = complaintSnapshot.getValue(Complaints.class);
-                if(getDistance(c.getLat(),c.getLongitude(),lat,longitude)<600) {
+                if(getDistance(c.getLat(),c.getLongitude(),lat,longitude)<600 && cr.size()<4) {
                     cr.add(c);
                     //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,longitude),14.0f));
                     googleMap.addMarker(new MarkerOptions().position(new LatLng(c.getLat(),c.getLongitude())).title("Department: "+c.getDept()+"\n"+"Details: "+c.getDetails()+"\n"+"Status: "+c.getStatus()+"\n"+"Authority: "+c.getAuthority()));
 
+                }
+                if(cr.size()>4)
+                {
+                    query.removeEventListener(this);
                 }
             }
             //Collections.reverse(cr);
@@ -138,6 +144,7 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
     @Override
     protected void onPause() {
         super.onPause();
+        query.removeEventListener(vEl);
     }
 
 
