@@ -63,7 +63,7 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
     Query query;
     ViewPager viewPager;
     Marker marker;
-    GoogleMap googleMap;
+    GoogleMap googleMapInit;
     ValueEventListener valueEventListener;
     ProgressBar progressBar;
     private FirebaseAuth mAuth;
@@ -80,7 +80,7 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(SelectActivity.this);
         //progressBar = findViewById(R.id.progress_id);
         currentUser = mAuth.getCurrentUser();
-
+        //c = new Complaints();
         final SupportMapFragment supportMapFragment = (SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.maps_list_id);
         supportMapFragment.getMapAsync(SelectActivity.this);
         //mSwipe = findViewById(R.id.swipe_refresh);
@@ -135,10 +135,10 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
                                         {
                                             lat = location.getLatitude();
                                             longitude = location.getLongitude();
-                                            googleMap.setMinZoomPreference(16);
+                                            googleMapInit.setMinZoomPreference(16);
                                             LatLng currentLoc = new LatLng(lat,longitude);
-                                            googleMap.addMarker(new MarkerOptions().position(currentLoc).title("My Location"));
-                                            googleMap.moveCamera(CameraUpdateFactory.newLatLng(currentLoc));
+                                            googleMapInit.addMarker(new MarkerOptions().position(currentLoc).title("My Location"));
+                                            googleMapInit.moveCamera(CameraUpdateFactory.newLatLng(currentLoc));
                                             Toast.makeText(SelectActivity.this,"Location detected",Toast.LENGTH_SHORT).show();
                                         }
                                     }
@@ -197,8 +197,8 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
     }
 
     @Override
-    public void onMapReady(final GoogleMap googleMap) {
-        this.googleMap = googleMap;
+    public void onMapReady(GoogleMap googleMap) {
+        googleMapInit = googleMap;
         valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
@@ -207,15 +207,14 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
 
                 //progressBar.setVisibility(View.GONE);
                 cr.clear();
-                googleMap.clear();
+                googleMapInit.clear();
                 for(DataSnapshot complaintSnapshot : dataSnapshot.getChildren())
                 {
-                    final Complaints c = complaintSnapshot.getValue(Complaints.class);
+                    Complaints c = complaintSnapshot.getValue(Complaints.class);
                     if(getDistance(c.getLat(),c.getLongitude(),lat,longitude)<600) {
-                        cr.add(c);
                         //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,longitude),14.0f));
-                        googleMap.addMarker(new MarkerOptions().position(new LatLng(c.getLat(),c.getLongitude())));
-                        googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                        googleMapInit.addMarker(new MarkerOptions().position(new LatLng(c.getLat(),c.getLongitude())).title("Department: "+c.getDept()+"\n"+"Details: "+c.getDetails()+"\n"+"Status: "+c.getStatus()+"\n"+"Authority: "+c.getAuthority()));
+                        googleMapInit.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
                             @Override
                             public View getInfoWindow(Marker marker) {
                                 return null;
@@ -230,7 +229,7 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
                                 title.setTextColor(Color.BLACK);
                                 title.setGravity(Gravity.CENTER);
                                 title.setTypeface(null, Typeface.BOLD);
-                                title.setText("Department: "+c.getDept()+"\n"+"Details: "+c.getDetails()+"\n"+"Status: "+c.getStatus()+"\n"+"Authority: "+c.getAuthority());
+                                title.setText(marker.getTitle());
                                 Button button = new Button(context);
                                 button.setText("Volunteer");
                                 button.setOnClickListener(new View.OnClickListener() {
@@ -253,6 +252,7 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
                                 return info;
                             }
                         });
+                        cr.add(c);
                     }
 //                    if(cr.size()>4)
 //                    {
