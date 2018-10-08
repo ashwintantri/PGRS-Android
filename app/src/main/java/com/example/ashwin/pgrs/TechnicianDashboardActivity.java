@@ -62,7 +62,7 @@ public class TechnicianDashboardActivity extends AppCompatActivity {
                 dept = technician.getDepartment();
             }
             queryComplaint = FirebaseDatabase.getInstance().getReference().orderByChild("dept").equalTo(dept);
-            queryComplaint.addValueEventListener(valueEventListenerComplaint);
+            queryComplaint.addListenerForSingleValueEvent(valueEventListenerComplaint);
         }
 
         @Override

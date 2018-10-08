@@ -24,6 +24,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -63,6 +64,7 @@ public class newComplaintActivity extends AppCompatActivity implements OnMapRead
     DatabaseReference db;
     String photoPath;
     GoogleMap googleMap;
+    ProgressBar progressBar;
     EditText editText;
     FirebaseUser currentUser;
     static final int REQUEST_TAKE_PHOTO = 1;
@@ -89,6 +91,7 @@ public class newComplaintActivity extends AppCompatActivity implements OnMapRead
         SupportMapFragment supportMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map_id);
         supportMapFragment.getMapAsync(newComplaintActivity.this);
         spinner = findViewById(R.id.spinner_item);
+        progressBar = findViewById(R.id.progress_upload_id);
         type_Spinner = findViewById(R.id.spinner_item_type);
         getLoc = findViewById(R.id.get_loc_id);
         details = findViewById(R.id.dialog_details_id);
@@ -168,6 +171,7 @@ public class newComplaintActivity extends AppCompatActivity implements OnMapRead
         submitComplaint.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                progressBar.setVisibility(View.VISIBLE);
                 final String authority = "None";
                 final String date_entered = date.getText().toString();
                 final String details_entered = details.getText().toString();
@@ -195,6 +199,7 @@ public class newComplaintActivity extends AppCompatActivity implements OnMapRead
                         int upvoted = 1;
                         Complaints cs = new Complaints(photoPath,department,desc,authority,date_entered,details_entered,status,type_selected,upvoted,mAuth.getCurrentUser().getEmail(),lat,longitude);
                         db.child(key).setValue(cs);
+                        progressBar.setVisibility(View.GONE);
                         AlertDialog.Builder builder = new AlertDialog.Builder(newComplaintActivity.this);
                         builder.setMessage("Complaint successfully registered.\n\nWe hope it will be resolved soon!").setTitle("Confirmation");
                         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {

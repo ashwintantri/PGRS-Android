@@ -64,6 +64,7 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
     ViewPager viewPager;
     Marker marker;
     GoogleMap googleMap;
+    ValueEventListener valueEventListener;
     ProgressBar progressBar;
     private FirebaseAuth mAuth;
     double lat,longitude;
@@ -92,7 +93,6 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
         ActivityCompat.requestPermissions(SelectActivity.this,new String[]
                 {Manifest.permission.ACCESS_FINE_LOCATION},1);
         query = FirebaseDatabase.getInstance().getReference();
-        query.addListenerForSingleValueEvent(vEl);
         //startActivity(getIntent());
 
         //complaintsAdapter.notifyDataSetChanged();
@@ -104,50 +104,17 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
     {
         return 2 * 6371000 * Math.asin(Math.sqrt(Math.pow((Math.sin((LAT2 * (3.14159 / 180) - LAT1 * (3.14159 / 180)) / 2)), 2) + Math.cos(LAT2 * (3.14159 / 180)) * Math.cos(LAT1 * (3.14159 / 180)) * Math.sin(Math.pow(((LONG2 * (3.14159 / 180) - LONG1 * (3.14159 / 180)) / 2), 2))));
     }
-    ValueEventListener vEl = new ValueEventListener()
-    {
 
-        @Override
-        public void onDataChange(DataSnapshot dataSnapshot)
-        {
-            //Toast.makeText(SelectActivity.this,"Changed",Toast.LENGTH_SHORT).show();
 
-            //progressBar.setVisibility(View.GONE);
-            cr.clear();
-            for(DataSnapshot complaintSnapshot : dataSnapshot.getChildren())
-            {
-                Complaints c = complaintSnapshot.getValue(Complaints.class);
-                if(getDistance(c.getLat(),c.getLongitude(),lat,longitude)<600 && cr.size()<4) {
-                    cr.add(c);
-                    //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,longitude),14.0f));
-                    googleMap.addMarker(new MarkerOptions().position(new LatLng(c.getLat(),c.getLongitude())).title("Department: "+c.getDept()+"\n"+"Details: "+c.getDetails()+"\n"+"Status: "+c.getStatus()+"\n"+"Authority: "+c.getAuthority()));
 
-                }
-                if(cr.size()>4)
-                {
-                    query.removeEventListener(this);
-                }
-            }
-            //Collections.reverse(cr);
-            query.addListenerForSingleValueEvent(vEl);
-            Collections.reverse(cr);
-        }
 
-        @Override
-        public void onCancelled(DatabaseError databaseError)
-        {
 
-        }
-
-    };
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        query.removeEventListener(vEl);
+    protected void onStop() {
+        super.onStop();
+        query.removeEventListener(valueEventListener);
     }
-
-
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -230,45 +197,79 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
+    public void onMapReady(final GoogleMap googleMap) {
         this.googleMap = googleMap;
-        this.googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+        valueEventListener = new ValueEventListener() {
             @Override
-            public View getInfoWindow(Marker marker) {
-                return null;
+            public void onDataChange(DataSnapshot dataSnapshot)
+            {
+                //Toast.makeText(SelectActivity.this,"Changed",Toast.LENGTH_SHORT).show();
+
+                //progressBar.setVisibility(View.GONE);
+                cr.clear();
+                googleMap.clear();
+                for(DataSnapshot complaintSnapshot : dataSnapshot.getChildren())
+                {
+                    final Complaints c = complaintSnapshot.getValue(Complaints.class);
+                    if(getDistance(c.getLat(),c.getLongitude(),lat,longitude)<600) {
+                        cr.add(c);
+                        //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,longitude),14.0f));
+                        googleMap.addMarker(new MarkerOptions().position(new LatLng(c.getLat(),c.getLongitude())));
+                        googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
+                            @Override
+                            public View getInfoWindow(Marker marker) {
+                                return null;
+                            }
+
+                            @Override
+                            public View getInfoContents(final Marker marker) {
+                                Context context = getApplicationContext();
+                                LinearLayout info = new LinearLayout(context);
+                                info.setOrientation(LinearLayout.VERTICAL);
+                                TextView title = new TextView(context);
+                                title.setTextColor(Color.BLACK);
+                                title.setGravity(Gravity.CENTER);
+                                title.setTypeface(null, Typeface.BOLD);
+                                title.setText("Department: "+c.getDept()+"\n"+"Details: "+c.getDetails()+"\n"+"Status: "+c.getStatus()+"\n"+"Authority: "+c.getAuthority());
+                                Button button = new Button(context);
+                                button.setText("Volunteer");
+                                button.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        Toast.makeText(SelectActivity.this,"We'll get back to you shortly!",Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                                Button button1 = new Button(context);
+                                button1.setText("Upvote");
+                                button1.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        Toast.makeText(SelectActivity.this,"Upvoted",Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                                info.addView(title);
+                                info.addView(button);
+                                info.addView(button1);
+                                return info;
+                            }
+                        });
+                    }
+//                    if(cr.size()>4)
+//                    {
+//                        query.removeEventListener(this);
+//                    }
+                }
+                //Collections.reverse(cr);
             }
 
             @Override
-            public View getInfoContents(final Marker marker) {
-                Context context = getApplicationContext();
-                LinearLayout info = new LinearLayout(context);
-                info.setOrientation(LinearLayout.VERTICAL);
-                TextView title = new TextView(context);
-                title.setTextColor(Color.BLACK);
-                title.setGravity(Gravity.CENTER);
-                title.setTypeface(null, Typeface.BOLD);
-                title.setText(marker.getTitle());
-                Button button = new Button(context);
-                button.setText("Volunteer");
-                button.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Toast.makeText(SelectActivity.this,"We'll get back to you shortly!",Toast.LENGTH_SHORT).show();
-                    }
-                });
-                Button button1 = new Button(context);
-                button1.setText("Upvote");
-                button1.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Toast.makeText(SelectActivity.this,"Upvoted",Toast.LENGTH_SHORT).show();
-                    }
-                });
-                info.addView(title);
-                info.addView(button);
-                info.addView(button1);
-                return info;
+            public void onCancelled(DatabaseError databaseError)
+            {
+
             }
-        });
+        };
+        query.addValueEventListener(valueEventListener);
+
     }
+
 }
