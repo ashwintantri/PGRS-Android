@@ -35,6 +35,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -64,6 +67,7 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
     ViewPager viewPager;
     Marker marker;
     GoogleMap googleMapInit;
+    GoogleMap gMap;
     ValueEventListener valueEventListener;
     ProgressBar progressBar;
     private FirebaseAuth mAuth;
@@ -135,10 +139,6 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
                                         {
                                             lat = location.getLatitude();
                                             longitude = location.getLongitude();
-                                            googleMapInit.setMinZoomPreference(16);
-                                            LatLng currentLoc = new LatLng(lat,longitude);
-                                            googleMapInit.addMarker(new MarkerOptions().position(currentLoc).title("My Location"));
-                                            googleMapInit.moveCamera(CameraUpdateFactory.newLatLng(currentLoc));
                                             Toast.makeText(SelectActivity.this,"Location detected",Toast.LENGTH_SHORT).show();
                                         }
                                     }
@@ -199,6 +199,7 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
     @Override
     public void onMapReady(GoogleMap googleMap) {
         googleMapInit = googleMap;
+
         valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot)
@@ -208,10 +209,17 @@ public class SelectActivity extends AppCompatActivity implements OnMapReadyCallb
                 //progressBar.setVisibility(View.GONE);
                 cr.clear();
                 googleMapInit.clear();
+                googleMapInit.setMinZoomPreference(16);
+                LatLng currentLoc = new LatLng(lat,longitude);
+                googleMapInit.addMarker(new MarkerOptions().position(currentLoc).title("My Location").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_CYAN)));
+                googleMapInit.addCircle(new CircleOptions().center(currentLoc).radius(600).strokeColor(0x220000FF)
+                        .fillColor(0x220000FF)
+                        .strokeWidth(5));
+                googleMapInit.moveCamera(CameraUpdateFactory.newLatLng(currentLoc));
                 for(DataSnapshot complaintSnapshot : dataSnapshot.getChildren())
                 {
                     Complaints c = complaintSnapshot.getValue(Complaints.class);
-                    if(getDistance(c.getLat(),c.getLongitude(),lat,longitude)<600) {
+                    if(getDistance(c.getLat(),c.getLongitude(),lat,longitude)<500) {
                         //googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(lat,longitude),14.0f));
                         googleMapInit.addMarker(new MarkerOptions().position(new LatLng(c.getLat(),c.getLongitude())).title("Department: "+c.getDept()+"\n"+"Details: "+c.getDetails()+"\n"+"Status: "+c.getStatus()+"\n"+"Authority: "+c.getAuthority()));
                         googleMapInit.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
